@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Snake Neon Pro</title>
+    <title>Snake Pro - Neon Edition</title>
     <style>
         :root {
             --bg-color: #0a0a1a;
+            --food-color: #ff4d4d;
             --accent: #e94560;
             --panel-bg: rgba(10, 10, 30, 0.95);
             --s-head: #00ff88;
@@ -22,6 +23,7 @@
             align-items: center; justify-content: center; z-index: 1000;
         }
         .top-bar { display: flex; width: 90vw; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .info { display: flex; gap: 15px; font-weight: bold; font-size: 14px; }
         #game-container { position: relative; }
         canvas { border: 2px solid #1a1a3a; border-radius: 10px; background-color: #050510; max-width: 85vw; max-height: 85vw; display: block; box-shadow: 0 0 20px rgba(0, 255, 136, 0.1); }
         .overlay {
@@ -32,11 +34,16 @@
         }
         .btn-ui { padding: 12px 25px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 50px; cursor: pointer; width: 220px; margin: 5px; }
         .play-btn { background: var(--s-head); color: #1a1a2e; box-shadow: 0 0 15px var(--s-head); }
-        
-        /* Debug Scroll Area */
+        #hexInput { background: #16213e; border: 2px solid #1b2a4e; color: white; padding: 8px; border-radius: 8px; width: 140px; text-align: center; margin: 10px 0; outline: none; font-family: monospace; }
+        .skin-group { display: flex; gap: 15px; margin: 10px 0; }
+        .skin-btn { width: 45px; height: 45px; border-radius: 12px; border: 2px solid white; cursor: pointer; }
+        .controls { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; }
+        .btn-ctrl { width: 65px; height: 65px; background: #16213e; border-radius: 15px; color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #0a1128; user-select: none; }
+        .audio-btn { background: #16213e; border: 1px solid #0f3460; color: white; padding: 10px; border-radius: 10px; width: 100px; cursor: pointer; font-size: 11px; }
+
         #debug-menu { justify-content: flex-start; padding: 20px 10px; }
         .debug-scroll-area { 
-            width: 100%; max-height: 70%; overflow-y: auto; 
+            width: 100%; max-height: 75%; overflow-y: auto; 
             display: flex; flex-direction: column; align-items: center; gap: 10px;
             padding-bottom: 20px; scrollbar-width: thin; scrollbar-color: var(--s-head) transparent;
         }
@@ -45,18 +52,14 @@
         .debug-card { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; width: 85%; border: 1px solid rgba(255,255,255,0.1); }
         .btn-d-opt { width: 100% !important; height: 35px; font-size: 11px !important; margin: 2px 0 !important; border-radius: 8px !important; }
 
-        /* Error Style */
         .error-neon { color: var(--accent); text-shadow: 0 0 15px var(--accent); font-size: 32px; font-weight: 900; letter-spacing: 4px; }
-        
-        .controls { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; }
-        .btn-ctrl { width: 65px; height: 65px; background: #16213e; border-radius: 15px; color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #0a1128; user-select: none; }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
-        <h1 style="letter-spacing: 5px; color: var(--s-head); text-shadow: 0 0 20px var(--s-head);">SNAKE NEON</h1>
-        <button class="btn-ui play-btn" onclick="startGame()">PLAY</button>
+        <h1 style="letter-spacing: 5px; color: var(--s-head); text-shadow: 0 0 20px var(--s-head);">SNAKE PRO</h1>
+        <button class="btn-ui play-btn" onclick="startGame()">START GAME</button>
     </div>
 
     <audio id="bgMusic" loop>
@@ -64,164 +67,44 @@
     </audio>
 
     <div class="top-bar">
-        <button onclick="openSettings()" style="padding:5px 10px; background:#16213e; color:white; border-radius:5px; border:none;">Settings</button>
-        <div style="font-weight: bold;">Score: <span id="scoreVal">0</span> | Best: <span id="highScoreVal">0</span></div>
+        <div style="display:flex; gap:5px;">
+            <button onclick="toggleFullscreen()" style="padding:5px 10px; background:#16213e; color:white; border-radius:5px; border:none;">FS</button>
+            <button onclick="openSettings()" style="padding:5px 10px; background:#16213e; color:white; border-radius:5px; border:none;">Settings</button>
+        </div>
+        <div class="info">
+            <div>Score: <span id="scoreVal">0</span></div>
+            <div>Best: <span id="highScoreVal">0</span></div>
+        </div>
     </div>
 
     <div id="game-container">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         
         <div id="menu" class="overlay">
-            <h2 style="color: var(--accent);">GAME OVER</h2>
-            <button class="btn-ui" style="background: var(--accent);" onclick="resetGame()">RESTART</button>
+            <h2 style="color: var(--accent); text-shadow: 0 0 15px var(--accent);">GAME OVER</h2>
+            <button class="btn-ui" style="background: var(--accent); box-shadow: 0 0 15px var(--accent);" onclick="resetGame()">RESTART</button>
         </div>
 
         <div id="settings" class="overlay">
             <h2>SETTINGS</h2>
-            <button id="musicToggle" class="btn-ui" style="background:#16213e;" onclick="toggleMusic()">MUSIC: ON</button>
-            <div style="display:flex; gap:10px; margin-top: 20px;">
-                <button class="btn-ui" style="background: #4b4b4b; width: 100px; font-size: 12px;" onclick="showDebugAuth()">DEBUG</button>
-                <button class="btn-ui" style="background: #333; width: 100px; font-size: 12px;" onclick="closeSettings()">CLOSE</button>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button id="musicToggle" class="audio-btn" onclick="toggleMusic()">MUSIC: ON</button>
+                <button id="sfxToggle" class="audio-btn" onclick="toggleSFX()">SFX: ON</button>
+            </div>
+            <div class="skin-group">
+                <div class="skin-btn" style="background: #00ff88; box-shadow: 0 0 10px #00ff88;" onclick="setPreset('#00ff88')"></div>
+                <div class="skin-btn" style="background: #00d4ff; box-shadow: 0 0 10px #00d4ff;" onclick="setPreset('#00d4ff')"></div>
+                <div class="skin-btn" style="background: #ffcc00; box-shadow: 0 0 10px #ffcc00;" onclick="setPreset('#ffcc00')"></div>
+            </div>
+            <input type="text" id="hexInput" placeholder="#00FF88" maxlength="7">
+            <button class="btn-ui" style="background: transparent; border: 1px solid #555; height: 40px; margin-top: 10px;" onclick="closeSettings()">CLOSE</button>
+            <div style="display:flex; gap:10px; margin-top: 15px;">
+                <button class="btn-ui" style="background: #d63031; font-size: 11px; width: 100px;" onclick="clearData()">RESET</button>
+                <button class="btn-ui" style="background: #4b4b4b; font-size: 11px; width: 100px;" onclick="showDebugAuth()">DEBUG</button>
             </div>
         </div>
 
         <div id="debug-auth" class="overlay">
-            <h2>ENTER CODE</h2>
-            <input type="password" id="debugCodeInput" placeholder="******" style="background:#16213e; border:2px solid var(--accent); color:white; padding:10px; border-radius:10px; text-align:center; outline:none;">
-            <button class="btn-ui" style="width: 150px; background: var(--s-head); color: #1a1a2e; margin-top: 15px;" onclick="checkDebugCode()">OK</button>
-        </div>
-
-        <div id="no-code" class="overlay">
-            <div class="error-neon">NO CODE</div>
-            <div style="margin-top: 10px; opacity: 0.5; font-size: 12px;">ACCESS DENIED</div>
-        </div>
-
-        <div id="debug-menu" class="overlay">
-            <h3 style="color: var(--s-head);">DEBUG TOOLS</h3>
-            <div class="debug-scroll-area">
-                <div class="debug-card">
-                    <div style="font-size: 10px; opacity: 0.6;">SPEED: <span id="spdVal">180</span>ms</div>
-                    <input type="range" min="20" max="400" value="180" style="width:100%" oninput="changeSpeed(this.value)">
-                </div>
-                <button id="godBtn" class="btn-ui btn-d-opt" style="background:#222;" onclick="toggleGod()">GOD MODE: OFF</button>
-                <button id="autoBtn" class="btn-ui btn-d-opt" style="background:#222;" onclick="toggleAuto()">AUTO-PLAY: OFF</button>
-                <button id="rainbowBtn" class="btn-ui btn-d-opt" style="background:#222;" onclick="toggleRainbow()">RAINBOW: OFF</button>
-                <button id="ghostBtn" class="btn-ui btn-d-opt" style="background:#222;" onclick="toggleGhost()">GHOST MODE: OFF</button>
-                <button id="magnetBtn" class="btn-ui btn-d-opt" style="background:#222;" onclick="toggleMagnet()">MAGNET: OFF</button>
-                <button class="btn-ui btn-d-opt" style="background:#16213e;" onclick="addLength()">ADD +5 LENGTH</button>
-                <button class="btn-ui btn-d-opt" style="background:#e94560;" onclick="turboMode()">TURBO SPEED</button>
-            </div>
-            <button class="btn-ui" style="background:#333; height: 40px; margin-top:10px;" onclick="document.getElementById('debug-menu').style.display='none'; startLoop();">BACK</button>
-        </div>
-    </div>
-
-    <div class="controls">
-        <div style="grid-column: 2" class="btn-ctrl" onclick="setDir('up')">↑</div>
-        <div style="grid-column: 1" class="btn-ctrl" onclick="setDir('left')">←</div>
-        <div style="grid-column: 2" class="btn-ctrl" onclick="setDir('down')">↓</div>
-        <div style="grid-column: 3" class="btn-ctrl" onclick="setDir('right')">→</div>
-    </div>
-
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const bgMusic = document.getElementById("bgMusic");
-        const box = 20;
-        let score=0, highScore=localStorage.getItem("snakeScore")||0, snake=[], food={}, d="right", nextD="right", gameInterval;
-        let isGameOver=false, gameStarted=false, gameSpeed=180;
-        let godMode=false, autoMode=false, ghostMode=false, magnetMode=false, rainbowMode=false;
-        let musicEnabled=true, rainbowHue = 0;
-
-        function checkDebugCode() {
-            const val = document.getElementById('debugCodeInput').value;
-            if(val === "201419") {
-                document.getElementById('debug-auth').style.display = 'none';
-                document.getElementById('debug-menu').style.display = 'flex';
-            } else {
-                document.getElementById('debug-auth').style.display = 'none';
-                document.getElementById('no-code').style.display = 'flex';
-                setTimeout(() => {
-                    document.getElementById('no-code').style.display = 'none';
-                    document.getElementById('debug-auth').style.display = 'flex';
-                    document.getElementById('debugCodeInput').value = "";
-                }, 2000);
-            }
-        }
-
-        document.getElementById("highScoreVal").innerText = highScore;
-        function toggleMusic() { musicEnabled = !musicEnabled; if(musicEnabled) bgMusic.play(); else bgMusic.pause(); document.getElementById('musicToggle').innerText=`MUSIC: ${musicEnabled?'ON':'OFF'}`; }
-        function openSettings() { clearInterval(gameInterval); document.getElementById("settings").style.display="flex"; }
-        function closeSettings() { document.getElementById("settings").style.display="none"; if(gameStarted && !isGameOver) startLoop(); }
-        function showDebugAuth() { document.getElementById('settings').style.display='none'; document.getElementById('debug-auth').style.display='flex'; }
-        function setDir(dir) { if(dir=="left"&&d!="right") nextD="left"; if(dir=="up"&&d!="down") nextD="up"; if(dir=="right"&&d!="left") nextD="right"; if(dir=="down"&&d!="up") nextD="down"; }
-        function startGame() { document.getElementById("start-screen").style.display="none"; gameStarted=true; if(musicEnabled) bgMusic.play().catch(()=>{}); resetGame(); }
-        function resetGame() { score=0; document.getElementById("scoreVal").innerText=0; snake=[{x:10*box, y:10*box},{x:9*box, y:10*box}]; spawnFood(); isGameOver=false; d="right"; nextD="right"; document.getElementById("menu").style.display="none"; startLoop(); }
-        function startLoop() { if(gameInterval) clearInterval(gameInterval); gameInterval=setInterval(draw, gameSpeed); }
-
-        function spawnFood() {
-            if(magnetMode && snake.length > 0) {
-                let head = snake[0]; let tx = head.x, ty = head.y;
-                if(d=="right") tx+=box; else if(d=="left") tx-=box; else if(d=="up") ty-=box; else if(d=="down") ty+=box;
-                if(tx>=0 && tx<canvas.width && ty>=0 && ty<canvas.height) { food = {x:tx, y:ty}; return; }
-            }
-            food = {x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box};
-        }
-
-        function draw() {
-            d = nextD;
-            if(autoMode) {
-                if(food.x > snake[0].x && d !== "left") nextD = "right";
-                else if(food.x < snake[0].x && d !== "right") nextD = "left";
-                else if(food.y > snake[0].y && d !== "up") nextD = "down";
-                else if(food.y < snake[0].y && d !== "down") nextD = "up";
-            }
-            ctx.fillStyle = "#050510"; ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "#ff4d4d"; ctx.beginPath(); ctx.arc(food.x+box/2, food.y+box/2, 8, 0, Math.PI*2); ctx.fill();
-
-            if(rainbowMode) rainbowHue = (rainbowHue + 5) % 360;
-
-            snake.forEach((part, i) => {
-                ctx.fillStyle = rainbowMode ? `hsl(${(rainbowHue - (i * 12)) % 360}, 100%, 50%)` : "#00ff88";
-                ctx.beginPath(); ctx.roundRect(part.x+1, part.y+1, box-2, box-2, 5); ctx.fill();
-            });
-
-            let sX = snake[0].x, sY = snake[0].y;
-            if(d=="left") sX-=box; if(d=="up") sY-=box; if(d=="right") sX+=box; if(d=="down") sY+=box;
-
-            if(sX==food.x && sY==food.y) {
-                score++; document.getElementById("scoreVal").innerText=score;
-                if(score > highScore) { highScore=score; localStorage.setItem("snakeScore", highScore); document.getElementById("highScoreVal").innerText=highScore; }
-                spawnFood();
-            } else { snake.pop(); }
-
-            let head = {x:sX, y:sY};
-            if(!godMode) {
-                if(sX<0 || sX>=canvas.width || sY<0 || sY>=canvas.height || (!ghostMode && snake.some(p=>p.x===head.x&&p.y===head.y))) {
-                    isGameOver=true; clearInterval(gameInterval); document.getElementById("menu").style.display="flex"; return;
-                }
-            } else {
-                if(sX<0) head.x=canvas.width-box; if(sX>=canvas.width) head.x=0;
-                if(sY<0) head.y=canvas.height-box; if(sY>=canvas.height) head.y=0;
-            }
-            snake.unshift(head);
-        }
-
-        function toggleGod() { godMode = !godMode; updateBtn('godBtn', 'GOD MODE', godMode); }
-        function toggleAuto() { autoMode = !autoMode; updateBtn('autoBtn', 'AUTO-PLAY', autoMode); }
-        function toggleRainbow() { rainbowMode = !rainbowMode; updateBtn('rainbowBtn', 'RAINBOW', rainbowMode); }
-        function toggleGhost() { ghostMode = !ghostMode; updateBtn('ghostBtn', 'GHOST MODE', ghostMode); }
-        function toggleMagnet() { magnetMode = !magnetMode; updateBtn('magnetBtn', 'MAGNET', magnetMode); }
-        function addLength() { for(let i=0; i<5; i++) snake.push({...snake[snake.length-1]}); }
-        function turboMode() { changeSpeed(20); }
-        function changeSpeed(v) { gameSpeed = v; document.getElementById('spdVal').innerText=v; if(gameStarted) startLoop(); }
-        function updateBtn(id, txt, state) {
-            let b = document.getElementById(id);
-            b.innerText = `${txt}: ${state ? 'ON' : 'OFF'}`;
-            b.style.color = state ? '#00ff88' : 'white';
-        }
-    </script>
-</body>
-</html>
             <h2>CODE</h2>
             <input type="password" id="debugCodeInput" placeholder="******" style="background:#0f3460; border:2px solid var(--accent); color:white; padding:10px; border-radius:10px; text-align:center;">
             <button class="btn-ui" style="width: 150px; background: var(--s-head); color: #1a1a2e; margin-top: 10px;" onclick="checkDebugCode()">OK</button>
@@ -263,6 +146,10 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const bgMusic = document.getElementById("bgMusic");
+        
+        // Настройка громкости музыки (0.2 = 20%)
+        bgMusic.volume = 0.2;
+
         const box = 20;
         let score=0, highScore=localStorage.getItem("snakeScore")||0, snake=[], food={}, d="right", nextD="right", gameInterval;
         let isGameOver=false, gameStarted=false, gameSpeed=180;
