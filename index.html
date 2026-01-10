@@ -212,58 +212,7 @@
         if(godMode){ if(h.x<0) h.x=380; if(h.x>380) h.x=0; if(h.y<0) h.y=380; if(h.y>380) h.y=0; }  
         snake.unshift(h);  
     }  
-function toggleFullscreen() { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }  
-    <style>
-#musicMenu{
-  display:none;
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(10,10,30,0.95);
-  z-index:200;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  border-radius:10px;
-}
-.music-item{
-  background:#1a1a3a;
-  margin:6px;
-}
-</style>
-
-<button id="musicBtn" style="padding:5px 8px;background:#16213e;color:white;border:none;border-radius:5px;font-size:10px;">
-Music
-</button>
-
-<div id="musicMenu">
-  <h2>Music</h2>
-  <button class="btn-ui music-item" data-src="music1.mp3">Track 1</button>
-  <button class="btn-ui music-item" data-src="music2.mp3">Track 2</button>
-  <button class="btn-ui music-item" data-src="music3.mp3">Track 3</button>
-  <button class="btn-ui" id="closeMusic">Close</button>
-</div>
-
-<script>
-let musicPlayer=new Audio();
-musicPlayer.loop=true;
-
-document.getElementById("musicBtn").onclick=()=>{
-  document.getElementById("musicMenu").style.display="flex";
-};
-
-document.getElementById("closeMusic").onclick=()=>{
-  document.getElementById("musicMenu").style.display="none";
-};
-
-document.querySelectorAll(".music-item").forEach(b=>{
-  b.onclick=()=>{
-    musicPlayer.src=b.dataset.src;
-    musicPlayer.play();
-  };
-});
+    function toggleFullscreen() { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }  
 </script>
 
 </body>  
