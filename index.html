@@ -1,14 +1,14 @@
 <!DOCTYPE html>  <html lang="en">  
 <head>  
-    <meta charset="UTF-8">  
     <meta name="monetag" content="5fc6be253d142257eb11aee2f54717e3">
+    <script src="https://alwingulla.com/88/p.js" data-aho="10445382"></script>
+
+    <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
     <title>Snake Pro - Ghost Revive</title>  
 <link rel="icon" type="image/png" href="favicon.png">  
 <link rel="apple-touch-icon" href="favicon.png">  
 <meta name="theme-color" content="#00ff88">  
-
-<script src="https://alwingulla.com/88/p.js" data-aho="10445382"></script>
 
 <style>  
     :root {  
@@ -204,9 +204,23 @@
         document.querySelectorAll('.music-item').forEach(b => b.style.borderColor = "transparent");
     }
 
+    // Логика ПЕРЕРОЖДЕНИЯ с рекламой
     function reviveSnake() {
         if(!canRevive) return;
         
+        // Вызов рекламы Monetag
+        if (typeof show_8873767 === 'function') {
+            show_8873767().then(() => {
+                processRevive();
+            }).catch(() => {
+                processRevive(); // Возрождаем даже если реклама не загрузилась
+            });
+        } else {
+            processRevive(); // Если скрипт рекламы не подтянулся
+        }
+    }
+
+    function processRevive() {
         isGameOver = false;
         canRevive = false; 
         ghostMode = true; 
@@ -352,3 +366,4 @@
 
 </body>  
 </html>
+
