@@ -1,8 +1,5 @@
 <!DOCTYPE html>  <html lang="en">  
 <head>  
-    <meta name="monetag" content="5fc6be253d142257eb11aee2f54717e3">
-    <script src="https://alwingulla.com/88/p.js" data-aho="10445382"></script>
-
     <meta charset="UTF-8">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
     <title>Snake Pro - Ghost Revive</title>  
@@ -73,7 +70,7 @@
       
     <div id="menu" class="overlay">  
         <h2 style="color:var(--accent);">GAME OVER</h2>  
-        <button id="reviveBtn" class="btn-ui" style="background:#54a0ff; box-shadow: 0 0 10px #54a0ff;" onclick="reviveSnake()">REVIVE (AD)</button>
+        <button id="reviveBtn" class="btn-ui" style="background:#54a0ff; box-shadow: 0 0 10px #54a0ff;" onclick="reviveSnake()">REVIVE</button>
         <button class="btn-ui" style="background:var(--accent);" onclick="resetGame()">RESTART</button>  
     </div>  
 
@@ -110,7 +107,7 @@
 
     <div id="musicMenu" class="overlay">
         <h3 style="color:var(--watch-color);">PLAYLIST</h3>
-        <button class="btn-ui music-item" data-src="Canvas of life.mp3" onclick="changeTrack(this)">Track 1 (Default)</button>
+        <button class="btn-ui music-item" data-src="Canvas of life.mp3" onclick="changeTrack(this)">Track 1</button>
         <button class="btn-ui music-item" data-src="music2.mp3" onclick="changeTrack(this)">Track 2</button>
         <button class="btn-ui music-item" data-src="music3.mp3" onclick="changeTrack(this)">Track 3</button>
         <button class="btn-ui" style="background:var(--accent); width:160px; margin-top:10px;" onclick="resetToDefaultMusic()">RESET MUSIC</button>
@@ -177,7 +174,6 @@
     document.getElementById("highScoreVal").innerText = highScore;  
     document.getElementById("coinVal").innerText = appleCoins;  
     setPreset(currentHex);  
-    updateShopUI();  
 
     function updateShopUI() { document.getElementById("buyRainbowBtn").innerText = hasRainbow ? (rainbowActive ? "UNEQUIP" : "EQUIP") : "BUY 500 C"; }  
     function handleRainbowPurchase() { if(!hasRainbow && appleCoins >= 500) { appleCoins -= 500; hasRainbow = true; localStorage.setItem("appleCoins", appleCoins); localStorage.setItem("hasRainbow", "true"); } else if(hasRainbow) { rainbowActive = !rainbowActive; localStorage.setItem("rainbowActive", rainbowActive); } rainbowMode = rainbowActive; document.getElementById("coinVal").innerText = appleCoins; updateShopUI(); }  
@@ -204,47 +200,24 @@
         document.querySelectorAll('.music-item').forEach(b => b.style.borderColor = "transparent");
     }
 
-    // Логика ПЕРЕРОЖДЕНИЯ с рекламой
+    // ЛОГИКА ПЕРЕРОЖДЕНИЯ (Теперь мгновенная без рекламы)
     function reviveSnake() {
         if(!canRevive) return;
-        
-        // Вызов рекламы Monetag
-        if (typeof show_8873767 === 'function') {
-            show_8873767().then(() => {
-                processRevive();
-            }).catch(() => {
-                processRevive(); // Возрождаем даже если реклама не загрузилась
-            });
-        } else {
-            processRevive(); // Если скрипт рекламы не подтянулся
-        }
+        processRevive();
     }
 
     function processRevive() {
         isGameOver = false;
         canRevive = false; 
         ghostMode = true; 
-        
         document.getElementById("menu").style.display = "none";
         document.getElementById("reviveBtn").style.opacity = "0.5";
-        
-        setTimeout(() => {
-            ghostMode = false;
-        }, 5000);
-        
+        setTimeout(() => { ghostMode = false; }, 5000); // 5 секунд бессмертия
         startLoop();
     }
       
-    function showResetConfirm() {
-        document.getElementById('settings').style.display = 'none';
-        document.getElementById('confirm-reset').style.display = 'flex';
-    }
-
-    function clearGameData() {  
-        localStorage.clear();  
-        location.reload();  
-    }  
-
+    function showResetConfirm() { document.getElementById('settings').style.display = 'none'; document.getElementById('confirm-reset').style.display = 'flex'; }
+    function clearGameData() { localStorage.clear(); location.reload(); }  
     function showDebugAuth() { document.getElementById('settings').style.display='none'; document.getElementById('debug-auth').style.display='flex'; }  
     function checkDebugCode() { 
         if(document.getElementById('debugCodeInput').value === "914102") { 
@@ -285,12 +258,9 @@
 
     function spawnFood(isFirst = false) { 
         let count = 1;
-        if (!isFirst && Math.random() < 0.20) {
-            count = Math.floor(Math.random() * 9) + 1;
-        }
+        if (!isFirst && Math.random() < 0.20) count = Math.floor(Math.random() * 9) + 1;
         for(let i=0; i<count; i++) {
-            let v=false; 
-            let newFood;
+            let v=false, newFood;
             while(!v){ 
                 newFood = {x:Math.floor(Math.random()*18+1)*box, y:Math.floor(Math.random()*18+1)*box}; 
                 v = !snake.some(p=>p.x===newFood.x&&p.y===newFood.y) && !foodList.some(f=>f.x===newFood.x&&f.y===newFood.y); 
@@ -299,15 +269,13 @@
         }
     }  
 
-    function spawnItem(t) { let v=false; let n; while(!v){ n={x:Math.floor(Math.random()*18+1)*box, y:Math.floor(Math.random()*18+1)*box}; v=!snake.some(p=>p.x===n.x&&p.y===n.y); } if(t==='coin') currentCoin=n; if(t==='watch') currentWatch=n; }  
+    function spawnItem(t) { let v=false, n; while(!v){ n={x:Math.floor(Math.random()*18+1)*box, y:Math.floor(Math.random()*18+1)*box}; v=!snake.some(p=>p.x===n.x&&p.y===n.y); } if(t==='coin') currentCoin=n; if(t==='watch') currentWatch=n; }  
 
     function draw() {  
         d = nextD;  
         ctx.fillStyle = "#050510"; ctx.fillRect(0,0,canvas.width,canvas.height);  
         ctx.shadowBlur = 15; ctx.shadowColor = "#ff4d4d"; ctx.fillStyle = "#ff4d4d";
-        foodList.forEach(f => {
-            ctx.beginPath(); ctx.arc(f.x+box/2, f.y+box/2, 8, 0, Math.PI*2); ctx.fill();  
-        });
+        foodList.forEach(f => { ctx.beginPath(); ctx.arc(f.x+box/2, f.y+box/2, 8, 0, Math.PI*2); ctx.fill(); });
         if(currentCoin){ ctx.shadowColor="#ffd700"; ctx.fillStyle="#ffd700"; ctx.beginPath(); ctx.arc(currentCoin.x+box/2, currentCoin.y+box/2, 8, 0, Math.PI*2); ctx.fill(); }  
         if(currentWatch){ ctx.shadowColor="#00d4ff"; ctx.fillStyle="#00d4ff"; ctx.beginPath(); ctx.arc(currentWatch.x+box/2, currentWatch.y+box/2, 8, 0, Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.fillRect(currentWatch.x+box/2-1, currentWatch.y+box/2-4, 2, 4); }  
         
@@ -315,9 +283,7 @@
         
         snake.forEach((p, i) => {  
             let c = rainbowMode ? `hsl(${(rainbowHue-(i*12))%360}, 100%, 50%)` : currentHex;  
-            
             ctx.globalAlpha = ghostMode ? (Math.sin(Date.now()/100) > 0 ? 0.3 : 0.7) : 1.0;
-            
             ctx.shadowBlur=10; ctx.shadowColor=c; ctx.fillStyle=c; ctx.beginPath(); ctx.roundRect(p.x+1, p.y+1, box-2, box-2, 5); ctx.fill();  
             if(i===0){ ctx.shadowBlur=0; ctx.fillStyle="black"; let ex1,ey1,ex2,ey2; if(d=="right"){ex1=12;ey1=5;ex2=12;ey2=12;} else if(d=="left"){ex1=5;ey1=5;ex2=5;ey2=12;} else if(d=="up"){ex1=5;ey1=5;ex2=12;ey2=5;} else {ex1=5;ey1=12;ex2=12;ey2=12;} ctx.fillRect(p.x+ex1, p.y+ey1, 3, 3); ctx.fillRect(p.x+ex2, p.y+ey2, 3, 3); }  
         });  
@@ -328,37 +294,31 @@
         
         let foodIndex = foodList.findIndex(f => f.x === sX && f.y === sY);
         if(foodIndex !== -1){ 
-            score++; 
-            playSfx(600); 
-            foodList.splice(foodIndex, 1); 
+            score++; playSfx(600); foodList.splice(foodIndex, 1); 
             if(Math.random()<0.5) addCoins(Math.floor(Math.random()*7)+3); 
             if(Math.random()<0.3) spawnItem('coin'); 
             document.getElementById("scoreVal").innerText=score; 
             if(score>highScore){highScore=score; localStorage.setItem("snakeScore", highScore); document.getElementById("highScoreVal").innerText=highScore;} 
-            if(foodList.length === 0) { spawnFood(); } else if(Math.random() < 0.20) { spawnFood(); }
+            if(foodList.length === 0) spawnFood(); else if(Math.random() < 0.20) spawnFood();
         }  
         else if(currentCoin && sX==currentCoin.x && sY==currentCoin.y){ addCoins(1); playSfx(900); currentCoin=null; }  
         else if(currentWatch && sX==currentWatch.x && sY==currentWatch.y){ currentWatch=null; playSfx(400); gameSpeed=350; startLoop(); setTimeout(()=>{gameSpeed=normalSpeed; if(!isGameOver) startLoop();}, 5000); }  
         else { snake.pop(); }  
         
         let h = {x:sX, y:sY};  
-
         let hitWall = (sX<0 || sX>=canvas.width || sY<0 || sY>=canvas.height);
         let hitSelf = snake.some(p=>p.x===h.x&&p.y===h.y);
 
         if(!godMode && !ghostMode && (hitWall || hitSelf)){ 
-            isGameOver=true; 
-            clearInterval(gameInterval); 
+            isGameOver=true; clearInterval(gameInterval); 
             document.getElementById("menu").style.display="flex"; 
             document.getElementById("reviveBtn").style.display = canRevive ? "block" : "none";
             return; 
         }  
-        
         if(godMode || ghostMode){ 
             if(h.x<0) h.x=canvas.width-box; if(h.x>=canvas.width) h.x=0; 
             if(h.y<0) h.y=canvas.height-box; if(h.y>=canvas.height) h.y=0; 
         }  
-
         snake.unshift(h);  
     }  
     function toggleFullscreen() { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }  
